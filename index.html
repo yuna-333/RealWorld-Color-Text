@@ -1,0 +1,640 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>FiveM Color Generator</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+
+.footerText{
+margin-top:50px;
+text-align:center;
+opacity:0.5;
+font-size:13px;
+}
+
+body{
+background:#0b0b0b;
+color:white;
+font-family:'Noto Sans KR', sans-serif;
+padding:40px;
+max-width:1000px;
+margin:auto;
+}
+
+h1{
+text-align:center;
+margin-bottom:8px;
+font-weight:700;
+}
+
+.subtitle{
+text-align:center;
+opacity:0.6;
+margin-bottom:30px;
+}
+
+.editor{
+background:#111;
+border:1px solid #333;
+border-radius:12px;
+padding:24px;
+}
+
+textarea{
+width:100%;
+height:130px;
+background:#0f0f0f;
+border:1px solid #444;
+color:white;
+font-size:16px;
+padding:14px;
+box-sizing: border-box;
+border-radius:8px;
+resize:none;
+font-family:'Noto Sans KR', sans-serif;
+}
+
+.preview span{
+padding:0px 0px;
+border-radius:3px;
+display:inline;
+}
+
+
+.preview span{
+letter-spacing:0;
+word-spacing:0;
+}
+
+.preview{
+font-kerning:none;
+}
+
+.controls{
+margin-top:16px;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+button{
+padding:9px 16px;
+border:none;
+border-radius:8px;
+background:#5865F2;
+color:white;
+cursor:pointer;
+font-size:14px;
+font-family:'Noto Sans KR', sans-serif;
+}
+
+button:hover{
+opacity:0.9;
+}
+
+.palette{
+margin-bottom:18px;
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+}
+
+.color{
+width:42px;
+height:30px;
+border-radius:6px;
+cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:13px;
+border:1px solid #333;
+font-weight:500;
+}
+
+.previewBox{
+margin-top:30px;
+background:#000;
+border:1px solid #333;
+border-radius:12px;
+padding:22px;
+}
+
+.previewTitle{
+margin-bottom:12px;
+opacity:0.6;
+font-size:14px;
+}
+
+.preview{
+font-size:18px;
+min-height:32px;
+}
+
+.paletteTitle{
+margin-top:20px;
+margin-bottom:12px;
+font-size:15px;
+font-weight:600;
+opacity:0.8;
+}
+
+.paletteDesc{
+font-size:11px;
+opacity:0.6;
+margin-left:4px;
+}
+
+/* 슬라이드 스타일 */
+.slider {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  height: 200px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.8;
+}
+
+/* 버튼 스타일 */
+.slider .prev,
+.slider .next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0,0,0,0.5);
+  color: white;
+  border: none;
+  width: 30px;          /* 가로 */
+  height: 30px;         /* 세로 */
+  font-size: 1.2em;     /* 화살표 크기 */
+  line-height: 1;       /* 글자 높이 고정 */
+  padding: 0;           /* 패딩 제거 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
+  z-index: 2;
+}
+
+.slider .prev { left: 5px; }
+.slider .next { right: 5px; }
+
+/* 플로팅 슬라이드 스타일 */
+.floating-slider {
+  position: fixed;
+  top: 50%;
+  right: 50px;
+  transform: translateY(-50%);
+  width: 120px;
+  height: 300px;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.float-slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.float-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 점(dot) 스타일 */
+.dots {
+  position: absolute;
+  bottom: 5px;
+  width: 100%;
+  text-align: center;
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin: 0 3px;
+  background-color: rgba(255,255,255,0.5);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.dot.active,
+.dot:hover {
+  background-color: white;
+}
+
+/* 상하 슬라이드 컨테이너 - 전광판 크기 */
+.vertical-slider {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;          /* 전광판과 동일 폭 */
+  height: 50px;                /* 전광판 높이 */
+  margin: 10px auto;           /* 가운데 정렬 + 상단과 간격 */
+  overflow: hidden;
+  border-radius: 12px;         /* 둥근 네모 */
+  background-color: #222;
+  border: 1px solid #555;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  box-sizing: border-box;
+}
+
+/* 텍스트 슬라이드 */
+.v-slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.v-slide {
+  white-space: pre; /* 공백, 줄바꿈 유지 */
+}
+
+/* FiveM Colors */
+.c0{color:#ffffff;}
+.c1{color:#FFC7DF;}
+.c2{color:#afec61;}
+.c3{color:#ffff9f;}
+.c4{color:#7bd8ff;}
+.c5{color:#e5c3ff;}
+.c6{color:#b3fdbd;}
+.c7{color:#ffffff;}
+.c8{color:#b1afb2;}
+.c9{color:#ffd256;}
+
+/* Background Colors */
+
+.bg1{background:rgba(255,199,223,0.5);}
+.bg2{background:rgba(175,236,97,0.5);}
+.bg3{background:rgba(255,255,159,0.5);}
+.bg4{background:rgba(123,216,255,0.5);}
+.bg5{background:rgba(229,195,255,0.5);}
+.bg6{background:rgba(179,253,189,0.5);}
+.bg7{background:rgba(255,255,255,0.5);}
+.bg8{background:rgba(177,175,178,0.5);}
+.bg9{background:rgba(255,210,86,0.5);}
+
+</style>
+</head>
+
+<body>
+
+<div class="slider">
+  <div class="slide"><img src="https://i.postimg.cc/XJVjTVnw/bboy.png" alt="배너1"></div>
+  <div class="slide"><img src="https://i.postimg.cc/XJVjTVnw/bboy.png" alt="배너2"></div>
+  <div class="slide"><img src="https://i.postimg.cc/XJVjTVnw/bboy.png" alt="배너3"></div>
+
+  <button class="prev">&#10094;</button>
+  <button class="next">&#10095;</button>
+</div>
+
+<div class="vertical-slider">
+  <div class="v-slide"> ^4[🤖뽀이칼텍스] ^0차량 운행에 필요한 ^4주유·엔진코팅·기름통⛽ ^0판매합니다. ^8(서부 주유소) </div>
+  <div class="v-slide"> ^7[🍖인백] ^0배고픔을 채워주는 ^7스테이크🥩 ^0판매합니다. </div>
+  <div class="v-slide"> ^1[🍰할미스] ^0목마름을 채워주는 ^1딸바스무디🥤 ^0판매합니다. </div>
+  <div class="v-slide"> ^5[🚧아우렉스] ^0세차·광택 및 차량 수리에 필요한 ^5긴급수리도구🛠️ ^0판매합니다. </div>
+  <div class="v-slide"> ^7[🏥EMS] ^0긴급 소생과 체력을 보충하는 ^7체력 회복제💊 ^0판매합니다. </div>
+  <div class="v-slide"> ^9[⛽오일리] ^0차량 운행에 필요한 ^9주유·엔진코팅·기름통⛽ ^0판매합니다. ^8(동부 주유소) </div>
+  <div class="v-slide"> ^3[🐝벌집] ^0전투에 필요한 ^3방탄복·총기파츠류🔫 ^0판매합니다. </div>
+  <div class="v-slide"> ^8[💨백호자동차] ^0리얼월드의 모든 차량을 ^8중개·매입·판매🚗^0 합니다.</div>
+  <div class="v-slide"> ^9[🐶퍼피짐] ^0체력·기력·전투력을 올려주는 ^9헬스PT·스테로이드💉^0판매합니다.</div>
+</div>
+
+<div class="floating-slider">
+  <div class="float-slide"><img src="https://i.postimg.cc/XJVjTVnw/bboy.png" alt="플로팅1"></div>
+  <div class="float-slide"><img src="https://i.postimg.cc/XJVjTVnw/bboy.png" alt="플로팅2"></div>
+  <div class="float-slide"><img src="https://i.postimg.cc/XJVjTVnw/bboy.png" alt="플로팅3"></div>
+
+  <div class="dots">
+    <span class="dot"></span>
+    <span class="dot"></span>
+    <span class="dot"></span>
+  </div>
+</div>
+
+<div class="editor">
+
+<div class="paletteTitle">텍스트 컬러</div>
+
+<div class="palette">
+
+<div class="color c1" onclick="insertColor('^1')">● 1</div>
+<div class="color c2" onclick="insertColor('^2')">● 2</div>
+<div class="color c3" onclick="insertColor('^3')">● 3</div>
+<div class="color c4" onclick="insertColor('^4')">● 4</div>
+<div class="color c5" onclick="insertColor('^5')">● 5</div>
+<div class="color c6" onclick="insertColor('^6')">● 6</div>
+<div class="color c7" onclick="insertColor('^7')">● 7</div>
+<div class="color c8" onclick="insertColor('^8')">● 8</div>
+<div class="color c9" onclick="insertColor('^9')">● 9</div>
+<div class="color c0" onclick="insertColor('^0')">● 0</div>
+
+</div>
+
+<div class="paletteTitle">
+배경 컬러 
+<span class="paletteDesc">(중복 사용 시 인게임에서 배경이 구분되지 않고 겹쳐 보이므로 한 가지만 사용을 권장합니다.)</span>
+</div>
+
+<div class="palette">
+
+<div class="color bg1" onclick="insertColor('&1')">■ 1</div>
+<div class="color bg2" onclick="insertColor('&2')">■ 2</div>
+<div class="color bg3" onclick="insertColor('&3')">■ 3</div>
+<div class="color bg4" onclick="insertColor('&4')">■ 4</div>
+<div class="color bg5" onclick="insertColor('&5')">■ 5</div>
+<div class="color bg6" onclick="insertColor('&6')">■ 6</div>
+<div class="color bg7" onclick="insertColor('&7')">■ 7</div>
+<div class="color bg8" onclick="insertColor('&8')">■ 8</div>
+<div class="color bg9" onclick="insertColor('&9')">■ 9</div>
+
+</div>
+
+<textarea id="input" placeholder="상단의 컬러 버튼을 누른 후 텍스트를 입력해 보세요."></textarea>
+
+<div class="controls">
+
+<button onclick="copyText()">텍스트 복사</button>
+<button onclick="clearText()">초기화</button>
+
+</div>
+
+
+</div>
+
+<div class="previewBox">
+
+<div class="previewTitle">🎨컬러 텍스트 미리보기</div>
+
+<div class="preview" id="preview"></div>
+
+</div>
+
+<script>
+
+const input = document.getElementById("input")
+const preview = document.getElementById("preview")
+
+input.addEventListener("input", updatePreview)
+
+function updatePreview(){
+
+let text = input.value
+
+text = text.replace(/</g,"&lt;").replace(/>/g,"&gt;")
+
+let result = ""
+
+let color = "c7"
+let bg = ""
+
+let buffer = ""
+
+function flush(){
+if(buffer !== ""){
+result += "<span class='"+color+"'>" + buffer + "</span>"
+buffer=""
+}
+}
+
+for(let i=0;i<text.length;i++){
+
+// 텍스트 색 변경
+if(text[i] === "^" && !isNaN(text[i+1])){
+flush()
+color = "c"+text[i+1]
+i++
+continue
+}
+
+// 배경 색 변경
+if(text[i] === "&" && !isNaN(text[i+1])){
+flush()
+
+if(bg !== ""){
+result += "</span>"
+}
+
+bg = "bg"+text[i+1]
+result += "<span class='"+bg+"'>"
+
+i++
+continue
+}
+
+buffer += text[i]
+
+}
+
+flush()
+
+if(bg !== ""){
+result += "</span>"
+}
+
+preview.innerHTML = result
+
+}
+
+function insertColor(code){
+
+let start = input.selectionStart
+let end = input.selectionEnd
+let text = input.value
+
+input.value = text.substring(0,start) + code + text.substring(end)
+
+input.focus()
+input.selectionStart = input.selectionEnd = start + code.length
+
+updatePreview()
+
+}
+
+function copyText(){
+
+navigator.clipboard.writeText(input.value)
+alert("복사 완료")
+
+}
+
+function clearText(){
+
+input.value=""
+preview.innerHTML=""
+
+}
+
+</script>
+
+<footer class="footerText">
+⚙️Discord yu.na__
+</footer>
+
+<script>
+ let current = 0;
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+
+function showSlide(index) {
+  slides.forEach((slide, i) => slide.style.opacity = i === index ? 1 : 0);
+}
+
+// 자동 슬라이드
+let slideInterval = setInterval(() => {
+  current = (current + 1) % total;
+  showSlide(current);
+}, 5000);
+
+// 버튼 클릭 이벤트
+document.querySelector('.prev').addEventListener('click', () => {
+  current = (current - 1 + total) % total;
+  showSlide(current);
+  resetInterval();
+});
+
+document.querySelector('.next').addEventListener('click', () => {
+  current = (current + 1) % total;
+  showSlide(current);
+  resetInterval();
+});
+
+// 클릭 시 자동 슬라이드 초기화 후 재시작
+function resetInterval() {
+  clearInterval(slideInterval);
+  slideInterval = setInterval(() => {
+    current = (current + 1) % total;
+    showSlide(current);
+  }, 3000);
+}
+
+// 초기 표시
+showSlide(current);
+
+let floatCurrent = 0;
+const floatSlides = document.querySelectorAll('.float-slide');
+const floatDots = document.querySelectorAll('.dot');
+const floatTotal = floatSlides.length;
+
+function showFloatSlide(index) {
+  floatSlides.forEach((slide, i) => slide.style.opacity = i === index ? 1 : 0);
+  floatDots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+}
+
+// 자동 슬라이드
+let floatInterval = setInterval(() => {
+  floatCurrent = (floatCurrent + 1) % floatTotal;
+  showFloatSlide(floatCurrent);
+}, 3000);
+
+// 점(dot) hover 이벤트
+floatDots.forEach((dot, i) => {
+  dot.addEventListener('mouseenter', () => {
+    floatCurrent = i;
+    showFloatSlide(floatCurrent);
+    resetFloatInterval();
+  });
+});
+
+// 자동 슬라이드 재시작
+function resetFloatInterval() {
+  clearInterval(floatInterval);
+  floatInterval = setInterval(() => {
+    floatCurrent = (floatCurrent + 1) % floatTotal;
+    showFloatSlide(floatCurrent);
+  }, 3000);
+}
+
+// 초기 표시
+showFloatSlide(floatCurrent);
+
+let vCurrent = 0;
+const vSlides = document.querySelectorAll('.v-slide');
+const vTotal = vSlides.length;
+
+function showVSlide(index) {
+  vSlides.forEach((slide, i) => {
+    if(i === index){
+      slide.style.opacity = 1;
+      slide.style.transform = "translateY(0)";
+    } else {
+      slide.style.opacity = 0;
+      slide.style.transform = "translateY(100%)";
+    }
+  });
+}
+
+// 5초마다 슬라이드 변경
+showVSlide(vCurrent);
+setInterval(() => {
+  vCurrent = (vCurrent + 1) % vTotal;
+  showVSlide(vCurrent);
+}, 3000); 
+
+const colorMap = {
+  '0': '#ffffff',
+  '1': '#FFC7DF',
+  '2': '#afec61',
+  '3': '#ffff9f',
+  '4': '#7bd8ff',
+  '5': '#e5c3ff',
+  '6': '#b3fdbd',
+  '7': '#FF3D3D',
+  '8': '#b1afb2',
+  '9': '#ffd256'
+};
+
+function applyColorCodes(text) {
+  // 연속 공백도 유지
+  text = text.replace(/ /g, '&nbsp;');
+
+  return text.replace(/\^(\d)([^^]+)/g, (match, code, content) => {
+    const color = colorMap[code] || '#fff';
+    return `<span style="color:${color}">${content}</span>`;
+  });
+}
+
+// 적용
+document.querySelectorAll('.v-slide').forEach(slide => {
+  slide.innerHTML = applyColorCodes(slide.textContent);
+});
+
+</script>
+
+</body>
+</html>
