@@ -507,6 +507,15 @@ text-shadow:
 0 0 12px rgba(122,162,255,0.6);
 }
 
+.color.style-btn {
+  background: rgba(255,255,255,0.08);
+  font-weight: bold;
+}
+
+.color.style-btn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
 
 .c0{color:#ffffff;}
 .c1{color:#FFC7DF;}
@@ -679,7 +688,7 @@ text-shadow:
   <div class="v-slide"> ^4[🤖뽀이칼텍스] ^0차량 운행에 필요한 ^4주유·엔진코팅·기름통⛽ ^0판매합니다. ^8(서부 주유소) </div>
   <div class="v-slide"> ^7[🍖인백] ^0배고픔을 채워주는 ^7스테이크🥩 ^0판매합니다. </div>
   <div class="v-slide"> ^1[🍰할미스] ^0목마름을 채워주는 ^1딸바스무디🥤 ^0판매합니다. </div>
-  <div class="v-slide"> ^5[🚧아우렉스] ^0세차·광택 및 차량 수리에 필요한 ^5긴급수리도구🛠️ ^0판매합니다. </div>
+  <div class="v-slide"> ^5[🛠️더 커스텀] ^0차량 수리에 필요한 ^5강화타이어·긴급수리도구🛠️ ^0판매합니다. </div>
   <div class="v-slide"> ^7[🏥EMS] ^0긴급 소생과 체력을 보충하는 ^7체력 회복제💊 ^0판매합니다. </div>
   <div class="v-slide"> ^9[⛽오일리] ^0차량 운행에 필요한 ^9주유·엔진코팅·기름통⛽ ^0판매합니다. ^8(동부 주유소) </div>
   <div class="v-slide"> ^3[🐝벌집] ^0전투에 필요한 ^3방탄복·총기파츠류🔫 ^0판매합니다. </div>
@@ -734,7 +743,10 @@ text-shadow:
 
 </div>
 
-<div class="paletteTitle">텍스트 컬러</div>
+<div class="paletteTitle">
+텍스트 컬러
+<span class="paletteDesc">(텍스트를 드래그하여 기울임, 밑줄, 취소선 기능을 사용해 보세요.)</span>
+</div>
 
 <div class="palette">
 
@@ -749,8 +761,11 @@ text-shadow:
 <div class="color c9" onclick="insertColor('^9')">● 9</div>
 <div class="color c0" onclick="insertColor('^0')">● 0</div>
 
-</div>
+<div class="color style-btn" onclick="wrapText('**')"><i>기울임</i></div>
+<div class="color style-btn" onclick="wrapText('__')"><u>밑줄</u></div>
+<div class="color style-btn" onclick="wrapText('~~')"><s>취소선</s></div>
 
+</div>
 
 <textarea id="input" placeholder="상단의 컬러 버튼을 누른 후 텍스트를 입력해 보세요."></textarea>
 
@@ -792,14 +807,48 @@ let bg = ""
 
 let buffer = ""
 
+// ✨ 스타일 상태
+let italic = false
+let underline = false
+let strike = false
+
 function flush(){
 if(buffer !== ""){
-result += "<span class='"+color+"'>" + buffer + "</span>"
+
+let styled = buffer
+
+if (italic) styled = "<i>" + styled + "</i>"
+if (underline) styled = "<u>" + styled + "</u>"
+if (strike) styled = "<s>" + styled + "</s>"
+
+result += "<span class='"+color+" "+bg+"'>" + styled + "</span>"
+
 buffer=""
 }
 }
 
 for(let i=0;i<text.length;i++){
+
+if(text[i] === "*" && text[i+1] === "*"){
+flush()
+italic = !italic
+i++
+continue
+}
+
+if(text[i] === "_" && text[i+1] === "_"){
+flush()
+underline = !underline
+i++
+continue
+}
+
+if(text[i] === "~" && text[i+1] === "~"){
+flush()
+strike = !strike
+i++
+continue
+}
 
 if(text[i] === "^" && !isNaN(text[i+1])){
 flush()
@@ -810,15 +859,14 @@ continue
 
 if(text[i] === "&" && !isNaN(text[i+1])){
 flush()
-
-if(bg !== ""){
-result += "</span>"
+bg = "bg"+text[i+1]
+i++
+continue
 }
 
-bg = "bg"+text[i+1]
-result += "<span class='"+bg+"'>"
-
-i++
+if(text[i] === "\n"){
+flush()
+result += "<br>"
 continue
 }
 
@@ -827,10 +875,6 @@ buffer += text[i]
 }
 
 flush()
-
-if(bg !== ""){
-result += "</span>"
-}
 
 preview.innerHTML = result
 
@@ -888,6 +932,31 @@ const toggleBtn = document.getElementById("emoji-toggle");
 toggleBtn.addEventListener("click", () => {
   sidebar.classList.toggle("collapsed");
 });
+
+function wrapText(wrapper){
+
+  const start = input.selectionStart
+  const end = input.selectionEnd
+  const text = input.value
+
+  if(start === end) return // 선택 안 했으면 무시
+
+  const selected = text.substring(start, end)
+
+  const newText = 
+    text.substring(0, start) +
+    wrapper + selected + wrapper +
+    text.substring(end)
+
+  input.value = newText
+
+  // 커서 위치 유지 (감싼 상태 유지)
+  input.focus()
+  input.selectionStart = start
+  input.selectionEnd = end + wrapper.length * 2
+
+  updatePreview()
+}
 
 </script>
 
