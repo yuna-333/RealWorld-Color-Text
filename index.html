@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>리얼월드 컬러 텍스트 생성</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-FSBT5ELEKN"></script>
 <script>
@@ -136,7 +136,7 @@ font-size:13px;
 body{
 background:#0b0b0b;
 color:white;
-font-family:'Noto Sans KR', sans-serif;
+font-family: 'Rubik', 'Noto Sans KR', sans-serif;
 padding:0px;
 max-width:1000px;
 margin:auto;
@@ -178,18 +178,12 @@ font-family:'Noto Sans KR', sans-serif;
 .preview span{
 padding:0px 0px;
 border-radius:3px;
+font-family: 'Rubik', 'Noto Sans KR', sans-serif;
+letter-spacing:0;
+word-spacing:0;
 display:inline;
 }
 
-
-.preview span{
-letter-spacing:0;
-word-spacing:0;
-}
-
-.preview{
-font-kerning:none;
-}
 
 .controls{
 margin-top:16px;
@@ -242,15 +236,36 @@ padding:22px;
 }
 
 .previewTitle{
+display: flex;
 margin-bottom:12px;
 opacity:0.6;
 font-size:14px;
 }
 
+.previewDesc{
+font-size:12px;
+font-weight: 600;
+opacity:0.6;
+}
+
 .preview{
-font-size:18px;
+display: block;
+font-size:15px;
 min-height:32px;
 white-space: pre-wrap;
+font-kerning:none;
+font-family: 'Noto Sans KR', sans-serif;
+font-weight: 500;
+width:fit-content;
+max-width:510px;
+}
+
+.preview i {
+  font-style: italic !important;
+}
+
+.symbol {
+  font-family: 'Noto Sans KR', sans-serif !important;
 }
 
 .paletteTitle{
@@ -513,6 +528,41 @@ text-shadow:
   background: rgba(255,255,255,0.2);
 }
 
+.chat-info{
+  display:flex;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.chat-info input{
+  flex:1;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #444;
+  background:#0f0f0f;
+  color:white;
+  font-size:14px;
+  font-family:'Noto Sans KR', sans-serif;
+}
+
+.chat-name {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.chat-id {
+  color: #b1afb2;
+  margin-right: 4px;
+  font-size:13px;
+}
+
+.chat-colon{
+  color: #ffffff;
+  font-size: 16px; 
+  margin-right: 2px;
+  margin-left: -3px;
+  margin-right: 2px;
+}
 
 .c0{color:#ffffff;}
 .c1{color:#FFC7DF;}
@@ -764,6 +814,11 @@ text-shadow:
 
 </div>
 
+<div class="chat-info">
+  <input type="text" id="nickname" placeholder="닉네임 (예: 유나)">
+  <input type="text" id="userid" placeholder="고유번호 (예: 333)">
+</div>
+
 <textarea id="input" placeholder="상단의 컬러 버튼을 누른 후 텍스트를 입력해 보세요."></textarea>
 
 <div class="controls">
@@ -778,7 +833,10 @@ text-shadow:
 
 <div class="previewBox">
 
-<div class="previewTitle">컬러 텍스트 미리보기</div>
+<div class="previewTitle">
+  컬러 텍스트 미리보기
+  <span class="previewDesc"> (인게임 내 채팅창과 흡사하게 볼 수 있습니다.)</span>
+</div>
 
 <div class="preview" id="preview"></div>
 
@@ -789,7 +847,16 @@ text-shadow:
 const input = document.getElementById("input")
 const preview = document.getElementById("preview")
 
+function wrapSymbols(text){
+  return text.replace(/[^a-zA-Z0-9가-힣\s]/g, function(ch){
+    return "<span class='symbol'>" + ch + "</span>";
+  });
+}
+
 input.addEventListener("input", updatePreview)
+
+document.getElementById("nickname").addEventListener("input", updatePreview)
+document.getElementById("userid").addEventListener("input", updatePreview)
 
 function updatePreview(){
 
@@ -813,6 +880,7 @@ function flush(){
 if(buffer !== ""){
 
 let styled = buffer
+styled = wrapSymbols(styled)
 
 if (italic) styled = "<i>" + styled + "</i>"
 if (underline) styled = "<u>" + styled + "</u>"
@@ -862,16 +930,16 @@ i++
 continue
 }
 
-if(text[i] === "&" && !isNaN(text[i+1])){
-flush()
-bg = "bg"+text[i+1]
-i++
-continue
+if(text[i] === "*" && text[i+1] === "*"){
+  flush()
+  italic = !italic
+  i++
+  continue
 }
 
 if(text[i] === "\n"){
 flush()
-result += "<br>"
+result += "<br>&nbsp;"
 continue
 }
 
@@ -884,7 +952,13 @@ if(bgOpen){
   result += "</span>"
 }
 
-preview.innerHTML = result
+const nickname = document.getElementById("nickname").value || "닉네임"
+const userId = document.getElementById("userid").value || "0000"
+
+preview.innerHTML =
+"<span class='chat-name'>" + nickname + "</span>" +
+"<span class='chat-id'>(" + userId + ")</span><span class='chat-colon'>:</span>" +
+result
 }
 
 function insertColor(code){
@@ -963,6 +1037,7 @@ function wrapText(wrapper){
 
   updatePreview()
 }
+
 
 </script>
 
@@ -1077,8 +1152,6 @@ const colorMap = {
 };
 
 function applyColorCodes(text) {
-
-  text = text.replace(/ /g, '&nbsp;');
 
   return text.replace(/\^(\d)([^^]+)/g, (match, code, content) => {
     const color = colorMap[code] || '#fff';
