@@ -431,16 +431,12 @@ top:0;
 z-index:1000;
 }
 
-/* 로고 */
-
 .logo{
 font-size:18px;
 font-weight:600;
 letter-spacing:1px;
 color:white;
 }
-
-/* 메뉴 */
 
 .nav-links{
 display:flex;
@@ -804,10 +800,10 @@ let result = ""
 
 let color = "c7"
 let bg = ""
-
+let bgOpen = false
 let buffer = ""
 
-// ✨ 스타일 상태
+
 let italic = false
 let underline = false
 let strike = false
@@ -821,7 +817,7 @@ if (italic) styled = "<i>" + styled + "</i>"
 if (underline) styled = "<u>" + styled + "</u>"
 if (strike) styled = "<s>" + styled + "</s>"
 
-result += "<span class='"+color+" "+bg+"'>" + styled + "</span>"
+result += "<span class='"+color+"'>" + styled + "</span>"
 
 buffer=""
 }
@@ -829,9 +825,17 @@ buffer=""
 
 for(let i=0;i<text.length;i++){
 
-if(text[i] === "*" && text[i+1] === "*"){
+if(text[i] === "&" && !isNaN(text[i+1])){
 flush()
-italic = !italic
+  
+if(bgOpen){
+  result += "</span>"
+}
+
+bg = "bg"+text[i+1]
+result += "<span class='"+bg+"'>"
+bgOpen = true
+
 i++
 continue
 }
@@ -871,13 +875,15 @@ continue
 }
 
 buffer += text[i]
-
 }
 
 flush()
 
-preview.innerHTML = result
+if(bgOpen){
+  result += "</span>"
+}
 
+preview.innerHTML = result
 }
 
 function insertColor(code){
@@ -939,7 +945,7 @@ function wrapText(wrapper){
   const end = input.selectionEnd
   const text = input.value
 
-  if(start === end) return // 선택 안 했으면 무시
+  if(start === end) return 
 
   const selected = text.substring(start, end)
 
@@ -950,7 +956,6 @@ function wrapText(wrapper){
 
   input.value = newText
 
-  // 커서 위치 유지 (감싼 상태 유지)
   input.focus()
   input.selectionStart = start
   input.selectionEnd = end + wrapper.length * 2
